@@ -19,6 +19,20 @@
 #else
 extern "C"
 {
+    void zgemm_(const char *transa,
+                const char *transb,
+                const int *m,
+                const int *n,
+                const int *k,
+                const std::complex<double> *alpha,
+                const std::complex<double> *a,
+                const int *lda,
+                const std::complex<double> *b,
+                const int *ldb,
+                const std::complex<double> *beta,
+                std::complex<double> *c,
+                const int *ldc);
+
     void zgesvd_(char *jobu,
                  char *jobvt,
                  int *m,
@@ -240,6 +254,7 @@ ComplexMatrix_col cmatmul(const ComplexMatrix_col &A, const ComplexMatrix_col &B
     Complex alpha{1.0, 0.0};
     Complex beta{0.0, 0.0};
 
+#if defined(__APPLE__)
     cblas_zgemm(
         CblasColMajor,
         CblasNoTrans,
@@ -256,6 +271,29 @@ ComplexMatrix_col cmatmul(const ComplexMatrix_col &A, const ComplexMatrix_col &B
         C.data.data(), // data pointer C
         C.rows         // ldf
     );
+#else
+    const char trans = 'N';
+    const int m = A.rows;
+    const int n = B.cols;
+    const int k = A.cols;
+    const int lda = A.rows;
+    const int ldb = B.rows;
+    const int ldc = C.rows;
+
+    zgemm_(&trans,
+           &trans,
+           &m,
+           &n,
+           &k,
+           &alpha,
+           A.data.data(),
+           &lda,
+           B.data.data(),
+           &ldb,
+           &beta,
+           C.data.data(),
+           &ldc);
+#endif
 
     // O(mnk) reference implementation
     //  for (int j = 0; j < B.cols; ++j)
