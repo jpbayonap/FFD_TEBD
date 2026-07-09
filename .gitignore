@@ -1,0 +1,23 @@
+build/
+bin/
+results/
+
+# Local vendored dependency build/source tree. Recreate or fetch separately.
+vendor/ITensor/
+
+# Build artifacts, including tutorial-local build directories.
+**/build/
+*.o
+*.a
+*.so
+*.dylib
+*.d
+
+# Generated numerics and plots from tutorial/prototype runs.
+tutorials/ffd_manual/*.csv
+tutorials/ffd_manual/*.png
+tutorials/ffd_production/data/*
+!tutorials/ffd_production/data/.gitignore
+
+# macOS/editor noise.
+.DS_Store
