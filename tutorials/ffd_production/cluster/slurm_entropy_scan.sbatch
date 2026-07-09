@@ -47,7 +47,14 @@ ORDER="${ORDER_VALUES[$IDX]}"
 
 TAG="slurm_${SLURM_JOB_ID:-local}_${IDX}"
 
-/usr/bin/time -v "$BIN" \
+RUN_CMD=()
+if command -v /usr/bin/time >/dev/null 2>&1; then
+  RUN_CMD=(/usr/bin/time -v)
+elif command -v gtime >/dev/null 2>&1; then
+  RUN_CMD=(gtime -v)
+fi
+
+"${RUN_CMD[@]}" "$BIN" \
   --mode entropy \
   --N 40 \
   --dt "$DT" \

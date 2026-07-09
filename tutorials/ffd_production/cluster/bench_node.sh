@@ -45,9 +45,16 @@ df -h . || true
 df -h "${TMPDIR:-/tmp}" || true
 mkdir -p "$OUT_DIR"
 
+RUN_CMD=()
+if command -v /usr/bin/time >/dev/null 2>&1; then
+  RUN_CMD=(/usr/bin/time -v)
+elif command -v gtime >/dev/null 2>&1; then
+  RUN_CMD=(gtime -v)
+fi
+
 echo
 echo "== smoke benchmark =="
-/usr/bin/time -v "$BIN" \
+"${RUN_CMD[@]}" "$BIN" \
   --mode entropy \
   --N 40 \
   --dt 0.1 \
@@ -67,7 +74,7 @@ for threads in 1 2 4 8 16; do
   export MKL_NUM_THREADS="$threads"
   export VECLIB_MAXIMUM_THREADS="$threads"
   echo "-- threads=$threads"
-  /usr/bin/time -v "$BIN" \
+  "${RUN_CMD[@]}" "$BIN" \
     --mode entropy \
     --N 40 \
     --dt 0.1 \
