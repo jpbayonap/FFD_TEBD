@@ -1,7 +1,7 @@
 PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ITENSOR_DIR := $(PROJECT_ROOT)/vendor/ITensor
 
-.PHONY: help itensor check-itensor ising-builtin ising-manual ffd-manual ffd-production clean
+.PHONY: help itensor check-itensor ising-builtin ising-manual ffd-manual ffd-production clean clean-ffd-production
 
 help:
 	@echo "Targets:"
@@ -10,6 +10,7 @@ help:
 	@echo "  make ising-builtin  Build the library-assisted Ising tutorial"
 	@echo "  make ising-manual   Build the manual Ising tutorial"
 	@echo "  make clean          Remove local tutorial build artifacts"
+	@echo "  make clean-ffd-production Remove only the production FFD build artifacts"
 	@echo "  make ffd-manual  	Build the FFD tutorial"
 	@echo "  make ffd-production Build the production FFD TEBD runner"
 
@@ -32,8 +33,15 @@ ffd-manual:
 ffd-production:
 	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ffd_production"
 
+clean-ffd-production:
+	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ffd_production" clean
+
 clean:
-	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ising_builtin" clean
-	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ising_manual" clean
+	@if [ -f "$(ITENSOR_DIR)/options.mk" ]; then \
+		$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ising_builtin" clean; \
+		$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ising_manual" clean; \
+	else \
+		echo "Skipping ITensor-dependent tutorial clean because $(ITENSOR_DIR)/options.mk is missing."; \
+	fi
 	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ffd_manual" clean
 	$(MAKE) -C "$(PROJECT_ROOT)/tutorials/ffd_production" clean

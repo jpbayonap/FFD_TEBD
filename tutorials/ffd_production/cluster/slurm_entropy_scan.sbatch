@@ -2,6 +2,7 @@
 #SBATCH --job-name=ffd_entropy
 #SBATCH --output=logs/ffd_entropy_%A_%a.out
 #SBATCH --error=logs/ffd_entropy_%A_%a.err
+#SBATCH --partition=m1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -22,9 +23,10 @@ cd "$REPO_DIR"
 
 # Load modules here if your cluster uses environment modules, for example:
 # module purge
-# module load gcc openblas lapack
+# module load astro/gcc/10.3.0 astro/blas/3.11.0 astro/lapack/3.11
 
-make ffd-production
+make -C tutorials/ffd_production print-config
+make ffd-production CXX="${CXX:-g++}"
 
 # Avoid oversubscription. Match these to --cpus-per-task unless benchmarking says otherwise.
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"

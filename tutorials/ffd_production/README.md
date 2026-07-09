@@ -13,11 +13,25 @@ From the repository root:
 make ffd-production
 ```
 
-On macOS the Makefile links against Accelerate. On Linux it links against
-LAPACK/BLAS:
+On macOS the Makefile links against Accelerate. On Linux it first looks for a
+system OpenBLAS shared library at common cluster paths such as
+`/usr/lib64/libopenblas.so.0`. If that is present, a plain build should work:
+
+```bash
+make -C tutorials/ffd_production print-config
+make ffd-production CXX=g++
+```
+
+If the cluster provides normal linker names, you can override the link flags:
 
 ```bash
 make ffd-production CXX=g++ LDFLAGS="-llapack -lblas"
+```
+
+If only a versioned OpenBLAS library is visible, use the full path:
+
+```bash
+make ffd-production CXX=g++ LDFLAGS="/usr/lib64/libopenblas.so.0"
 ```
 
 If your cluster provides MKL, override the link flags according to the module
@@ -97,8 +111,14 @@ tutorials/ffd_production/cluster/slurm_entropy_scan.sbatch
 Then submit:
 
 ```bash
+mkdir -p logs
 sbatch tutorials/ffd_production/cluster/slurm_entropy_scan.sbatch
 ```
+
+On the observed cluster, the matrix partitions are the best starting point for
+CPU TEBD. Use `m1` for first production scans: it has 56 CPUs and about 257 GB
+per node, which is enough for several moderate independent jobs without
+occupying the largest memory nodes.
 
 ## Threading Notes
 
