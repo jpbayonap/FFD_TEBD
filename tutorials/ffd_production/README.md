@@ -122,14 +122,22 @@ occupying the largest memory nodes.
 
 ## Threading Notes
 
-Start with one independent TEBD run per job-array task. For each task, use a
-small number of BLAS/LAPACK threads:
+Start with one independent TEBD run per job-array task. On the observed matrix
+partition, a short `N=40`, `chi=96`, second-order benchmark gave nearly flat
+runtime for 1, 2, 4, and 8 OpenBLAS threads, with 2 threads slightly fastest.
+Use 2 threads as the current default:
 
 ```bash
-export OMP_NUM_THREADS=4
-export OPENBLAS_NUM_THREADS=4
-export MKL_NUM_THREADS=4
+export OMP_NUM_THREADS=2
+export OPENBLAS_NUM_THREADS=2
+export MKL_NUM_THREADS=2
 ```
 
 Do not combine many job-array tasks per node with many BLAS threads until
 `bench_node.sh` shows that this is actually faster on the cluster.
+
+## Useful Accounting
+
+```bash
+sacct -j JOBID --format=JobID,JobName,Partition,State,Elapsed,MaxRSS,AllocCPUS,ReqMem
+```
